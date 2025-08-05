@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Chamada Paciente - Painel Recepção</title>
+<style>
+  body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    padding: 30px;
+  }
+  h1 {
+    color: #6B4423;
+    margin-bottom: 20px;
+  }
+  label {
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+  input[type="text"], input[type="number"], select {
+    width: 300px;
+    padding: 8px;
+    font-size: 1em;
+    margin-top: 5px;
+    border: 2px solid #6B4423;
+    border-radius: 5px;
+    margin-bottom: 15px;
+  }
+  button {
+    background-color: #6B4423;
+    color: white;
+    font-size: 1.1em;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 5px 10px 5px 0;
+  }
+  button:hover {
+    background-color: #543214;
+  }
+  #info {
+    margin-top: 20px;
+    font-style: italic;
+    color: #333;
+  }
+  #fila {
+    margin-top: 30px;
+    background: white;
+    border: 2px solid #6B4423;
+    border-radius: 8px;
+    padding: 15px;
+    max-width: 450px;
+  }
+  #fila h2 {
+    margin-top: 0;
+    color: #6B4423;
+  }
+  #fila ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  #fila li {
+    padding: 6px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  .preferencial {
+    font-weight: bold;
+    color: #b8860b;
+  }
+</style>
+</head>
+<body>
+  <h1>Chamar Paciente - Clínica Saúde e Sorriso</h1>
+  
+  <label for="nomePaciente">Nome do Paciente:</label><br/>
+  <input type="text" id="nomePaciente" autocomplete="off" placeholder="Digite o nome completo" />
+
+  <label for="idadePaciente">Idade:</label><br/>
+  <input type="number" id="idadePaciente" min="0" max="120" placeholder="Ex: 45" />
+
+  <label for="salaPaciente">Sala:</label><br/>
+  <select id="salaPaciente">
+    <option value="1">Sala 1</option>
+    <option value="2">Sala 2</option>
+    <option value="3">Sala 3</option>
+  </select>
+
+  <br/>
+  <button onclick="adicionarPaciente()">Adicionar à fila</button>
+  <button onclick="chamarProximoPreferencial()">Chamar próximo preferencial</button>
+  <button onclick="chamarProximoNormal()">Chamar próximo normal</button>
+  <br/>
+  <button onclick="limparFilas()">Limpar filas</button>
+  <button onclick="limparChamada()">Limpar chamada atual</button>
+
+  <div id="info">Adicione pacientes na fila e chame-os na ordem.</div>
+
+  <div id="fila">
+    <h2>Fila de Espera</h2>
+    <div><strong>Preferencial (60 anos ou mais):</strong></div>
+    <ul id="listaPreferencial">
+      <li><em>Fila preferencial vazia</em></li>
+    </ul>
+
+    <div style="margin-top: 15px;"><strong>Normal:</strong></div>
+    <ul id="listaNormal">
+      <li><em>Fila normal vazia</em></li>
+    </ul>
+  </div>
+
+<script>
+  function carregarFila(nome) {
+    const filaJSON = localStorage.getItem(nome);
+    return filaJSON ? JSON.parse(filaJSON) : [];
+  }
+
+  function salvarFila(nome, fila) {
+    localStorage.setItem(nome, JSON.stringify(fila));
+  }
+
+  function atualizarListas() {
+    const listaPref = document.getElementById('listaPreferencial');
+    const listaNorm = document.getElementById('listaNormal');
+    const filaPreferencial = carregarFila('filaPreferencial');
+    const filaNormal = carregarFila('filaNormal');
+
+    if (filaPreferencial.length === 0) {
+      listaPref.innerHTML = '<li><em>Fila preferencial vazia</em></li>';
+    } else {
+      let html = '';
+      filaPreferencial.forEach((p, i) => {
+        html += `<li class="preferencial">${i+1}. ${p.nome} - Sala ${p.sala} (Idade: ${p.idade})</li>`;
+      });
+      listaPref.innerHTML = html;
+    }
+
+    if (filaNormal.length === 0) {
+      listaNorm.innerHTML = '<li><em>Fila normal vazia</em></li>';
+    } else {
+      let html = '';
+      filaNormal.forEach((p, i) => {
+        html += `<li>${i+

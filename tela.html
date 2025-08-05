@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Chamada Paciente - Tela TV</title>
+<style>
+  body {
+    margin: 0;
+    background-color: #6B4423;
+    color: white;
+    font-family: 'Arial Black', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    user-select: none;
+  }
+  #clinica {
+    font-size: 4vw;
+    font-weight: 900;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 6px black;
+  }
+  #chamado {
+    font-size: 6vw;
+    text-align: center;
+    padding: 20px 40px;
+    border: 5px solid white;
+    border-radius: 15px;
+    box-shadow: 0 0 30px white;
+    max-width: 90vw;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+  }
+  #listasTitulo {
+    font-size: 2.5vw;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-decoration: underline;
+    width: 90vw;
+  }
+  .filaSection {
+    font-size: 2vw;
+    margin-bottom: 20px;
+    width: 90vw;
+  }
+  .filaSection ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  .filaSection li {
+    margin-bottom: 6px;
+  }
+  .preferencial {
+    color: #ffdd57;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <div id="clinica">CLÍNICA SAÚDE E SORRISO</div>
+  <div id="chamado">Aguardando chamada...</div>
+
+  <div id="listasTitulo">Próximos pacientes na fila:</div>
+
+  <div class="filaSection">
+    <div><strong>Preferencial (60 anos ou mais):</strong></div>
+    <div id="listaPreferencial"><em>Fila preferencial vazia</em></div>
+  </div>
+
+  <div class="filaSection">
+    <div><strong>Normal:</strong></div>
+    <div id="listaNormal"><em>Fila normal vazia</em></div>
+  </div>
+
+  <audio id="som" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
+
+<script>
+  function atualizarTela(chamado, filaPreferencial, filaNormal) {
+    const chamadoDiv = document.getElementById('chamado');
+    const listaPref = document.getElementById('listaPreferencial');
+    const listaNorm = document.getElementById('listaNormal');
+    const som = document.getElementById('som');
+
+    if (chamado && chamado.nome) {
+      let texto = chamado.nome.toUpperCase() + ", FAVOR SE DIRIGIR À SALA " + chamado.sala;
+      if (chamado.preferencial) {
+        texto += " (PREFERENCIAL)";
+      }
+      chamadoDiv.textContent = texto;
+      som.currentTime = 0;
+      som.play();
+    } else {
+      chamadoDiv.textContent = "Aguardando chamada...";
+    }
+
+    if (filaPreferencial && filaPreferencial.length > 0) {
+      let html = "<ul>";
+      filaPreferencial.forEach((p, i) => {
+        html += `<li class="preferencial">${i+1}. ${p.nome} - Sala ${p.sala}</li>`;
+      });
+      html += "</ul>";
+      listaPref.innerHTML = html;
+    } else {
+      listaPref.innerHTML = "<em>Fila preferencial vazia</em>";
+    }
+
+    if (filaNormal && filaNormal.length > 0) {
+      let html = "<ul>";
+      filaNormal.forEach((p, i) => {
+        html += `<li>${i+1}. ${p.nome} - Sala ${p.sala}</li>`;
+      });
+      html += "</ul>";
+      listaNorm.innerHTML = html;
+    } else {
+      listaNorm.innerHTML = "<em>Fila normal vazia</em>";
+    }
+  }
+
+  window.addEventListener('storage', function(event) {
+    if(event.key === 'filaPreferencial' || event.key === 'filaNormal' || event.key === 'pacienteChamado') {
+      const filaPrefJSON = localStorage.getItem('filaPreferencial');
+      const filaNormJSON = localStorage.getItem('filaNormal');
+      const chamadoJSON = localStorage.getItem('pacienteChamado');
+      const filaPreferencial = filaPrefJSON ? JSON.parse(filaPrefJSON) : [];
+      const filaNormal = filaNormJSON ? JSON.parse(filaNormJSON) : [];
+      const chamado = chamadoJSON ? JSON.parse(chamadoJSON) : null;
+      atualizarTela(chamado, filaPreferencial, filaNormal);
+    }
+  });
+
+  window.onload = function() {
+    const filaPrefJSON = localStorage.getItem('filaPreferencial');
+    const filaNormJSON = localStorage.getItem('filaNormal');
+    const chamadoJSON = localStorage.getItem('pacienteChamado');
+    const filaPreferencial = filaPrefJSON ? JSON.parse(filaPrefJSON) : [];
+    const filaNormal = filaNormJSON ? JSON.parse(filaNormJSON) : [];
+    const chamado = chamadoJSON ? JSON.parse(chamadoJSON) : null;
+    atualizarTela(chamado, filaPreferencial, filaNormal);
+  }
+</script>
+
+</body>
+</html>
